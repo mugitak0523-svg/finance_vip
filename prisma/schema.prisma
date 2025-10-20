@@ -1,0 +1,19 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model IngestLog {
+  id        String   @id @default(cuid())
+  jobId     String?
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+  stats     Json?
+  level     String   @default("INFO")
+  message   String?
+  createdAt DateTime @default(now())
+}
