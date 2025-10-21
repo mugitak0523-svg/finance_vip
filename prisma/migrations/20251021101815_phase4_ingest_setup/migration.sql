@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Vip" ALTER COLUMN "updatedAt" DROP DEFAULT;
