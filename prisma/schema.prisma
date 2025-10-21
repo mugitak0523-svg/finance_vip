@@ -10,10 +10,46 @@ generator client {
 model IngestLog {
   id        String   @id @default(cuid())
   jobId     String?
-  startedAt DateTime @default(now())
-  endedAt   DateTime?
-  stats     Json?
+  startedAt DateTime
+  endedAt   DateTime
+  stats     Json
   level     String   @default("INFO")
   message   String?
   createdAt DateTime @default(now())
+}
+
+model Vip {
+  id              String   @id @default(cuid())
+  name            String
+  org             String?
+  title           String?
+  aliases         String[]
+  gnewsQueryExtra String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([name])
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  url         String
+  urlNorm     String   @unique
+  sourceName  String   @default("GoogleNews")
+  title       String
+  description String?
+  content     String?
+  publishedAt DateTime?
+  fetchedAt   DateTime
+  lang        String?
+  personMatch Json?
+  hash        String?
+  status      String   @default("NEW")
+  createdAt   DateTime @default(now())
+
+  @@index([publishedAt])
+  @@index([createdAt])
+  @@index([sourceName])
 }
