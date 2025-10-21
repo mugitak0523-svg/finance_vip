@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title></title>
+    <link>https://news.google.com</link>
+    <description>Google News JP</description>
+    <item>
+      <title>ニュース速報</title>
+      <link>https://news.google.com/articles/abc123</link>
+      <description>要人の発言に関する記事</description>
+      <pubDate>Tue, 02 Jul 2024 10:00:00 GMT</pubDate>
+      <guid isPermaLink="false">jp-1</guid>
+    </item>
+    <item>
+      <title>経済ニュース</title>
+      <link>https://news.google.com/articles/def456</link>
+      <description>経済関連の講演</description>
+      <pubDate>Tue, 02 Jul 2024 11:00:00 GMT</pubDate>
+      <guid isPermaLink="false">jp-2</guid>
+    </item>
+  </channel>
+</rss>

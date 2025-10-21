@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Google News - Global</title>
+  <entry>
+    <title>Statement on Policy</title>
+    <link href="https://news.google.com/articles/ghi789" rel="alternate" />
+    <updated>2024-07-02T12:00:00Z</updated>
+    <id>tag:news.google.com,2024:ghi789</id>
+    <summary>Officials give remarks on policy changes.</summary>
+  </entry>
+</feed>
