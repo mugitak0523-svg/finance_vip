@@ -105,7 +105,7 @@ export function buildVipQueries(vip: Vip): BuiltQuery[] {
   const sourceNames = uniqueStrings([vip.name, ...aliases].map((value) => value?.trim()).filter(Boolean) as string[]);
   const names = sourceNames.map(quoteIfNeeded);
 
-  const keywordPool = [...VIP_KEYWORDS];
+  const keywordPool: string[] = [...VIP_KEYWORDS];
   const extra = (vip as { gnewsQueryExtra?: string }).gnewsQueryExtra;
   if (extra && typeof extra === 'string' && extra.trim().length > 0) {
     keywordPool.push(extra.trim());

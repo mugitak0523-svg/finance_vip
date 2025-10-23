@@ -107,14 +107,17 @@ export async function runIngest(opts: IngestOptions = {}): Promise<IngestResult>
   const totals = { new: 0, skip: 0, error: 0, seen: 0 };
   const perVip: Record<string, VipStats> = {};
 
-  const vipWhere: Parameters<typeof prisma.vip.findMany>[0]['where'] = {
-    isActive: true
+  const vipArgs: Parameters<typeof prisma.vip.findMany>[0] = {
+    where: { isActive: true }
   };
   if (opts.vipIds && opts.vipIds.length > 0) {
-    vipWhere.id = { in: opts.vipIds };
+    vipArgs.where = {
+      ...vipArgs.where,
+      id: { in: opts.vipIds }
+    };
   }
 
-  const activeVips = await prisma.vip.findMany({ where: vipWhere });
+  const activeVips = await prisma.vip.findMany(vipArgs);
   const matchableVips = activeVips.map(toMatchVip);
   const recentWindowHours = ensureRecentWindow(opts.recentHours);
 
