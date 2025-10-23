@@ -1,10 +1,21 @@
 #!/usr/bin/env tsx
 import 'dotenv/config';
 
+import { prisma } from '@/lib/db';
 import { runIngest } from '@/lib/ingest';
 
 async function main() {
-  const result = await runIngest({ recentHours: 24, followHtmlCanonical: true });
+  console.log('[Ingest] Starting full VIP ingest job...');
+
+  const activeVips = await prisma.vip.findMany({ where: { isActive: true } });
+  console.log(`[Ingest] Found ${activeVips.length} active VIPs`);
+
+  const result = await runIngest({
+    vipIds: activeVips.map((vip) => vip.id),
+    recentHours: 24,
+    followHtmlCanonical: true
+  });
+
   console.log(JSON.stringify(result, null, 2));
 }
 
