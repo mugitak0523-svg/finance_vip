@@ -4,6 +4,8 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 type PersonMatch = {
   vipIds: string[];
   terms: string[];

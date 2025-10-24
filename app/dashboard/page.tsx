@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 const sections: Array<{ href: string; title: string; description: string }> = [
   { href: "/dashboard/articles", title: "記事一覧", description: "VIPに紐づく最新記事を検索・フィルタ" },
   { href: "/dashboard/logs", title: "収集ログ", description: "定期ジョブの実行履歴と統計を確認" },

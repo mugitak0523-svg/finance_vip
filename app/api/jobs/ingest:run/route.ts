@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { runIngest } from '@/lib/ingest';
 
+export const dynamic = 'force-dynamic';
+
 type RequestBody = {
   vipIds?: unknown;
   recentHours?: unknown;

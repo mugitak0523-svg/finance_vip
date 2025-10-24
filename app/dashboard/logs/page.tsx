@@ -1,6 +1,8 @@
 import LogCard from "@/components/LogCard";
 import { fetchLogs } from "@/lib/fetchers";
 
+export const dynamic = "force-dynamic";
+
 export default async function LogsPage() {
   let logs: Awaited<ReturnType<typeof fetchLogs>> = [];
   let errorMessage: string | null = null;

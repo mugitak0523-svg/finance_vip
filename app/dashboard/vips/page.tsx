@@ -1,5 +1,7 @@
 import VipManager from "@/components/VipManager";
 
+export const dynamic = "force-dynamic";
+
 export default function VipsPage() {
   return (
     <div className="space-y-4">

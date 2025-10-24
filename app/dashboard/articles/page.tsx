@@ -2,6 +2,8 @@ import ArticleCard from "@/components/ArticleCard";
 import Filters from "@/components/Filters";
 import { fetchArticles, fetchVips } from "@/lib/fetchers";
 
+export const dynamic = "force-dynamic";
+
 type SearchParams = Record<string, string | string[] | undefined>;
 
 function getParamValue(input: SearchParams, key: string) {
