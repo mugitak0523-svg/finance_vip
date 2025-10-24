@@ -78,6 +78,8 @@ export type ArticleQuery = {
   q?: string;
   page?: number;
   limit?: number;
+  from?: string;
+  to?: string;
 };
 
 export async function fetchArticles(params: ArticleQuery = {}): Promise<ArticleListResult> {
@@ -91,6 +93,8 @@ export async function fetchArticles(params: ArticleQuery = {}): Promise<ArticleL
   if (typeof params.limit === "number" && !Number.isNaN(params.limit)) {
     search.set("limit", String(params.limit));
   }
+  if (params.from) search.set("from", params.from);
+  if (params.to) search.set("to", params.to);
 
   const suffix = search.toString();
   const url = suffix ? `/api/articles?${suffix}` : "/api/articles";

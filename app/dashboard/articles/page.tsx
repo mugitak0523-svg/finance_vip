@@ -31,11 +31,15 @@ function buildPageLink(base: URLSearchParams, page: number) {
 export default async function ArticlesPage({ searchParams = {} }: { searchParams?: SearchParams }) {
   const q = getParamValue(searchParams, "q")?.trim();
   const vipId = getParamValue(searchParams, "vipId")?.trim();
+  const from = getParamValue(searchParams, "from")?.trim();
+  const to = getParamValue(searchParams, "to")?.trim();
   const page = parsePage(getParamValue(searchParams, "page"));
 
   const baseParams = new URLSearchParams();
   if (q) baseParams.set("q", q);
   if (vipId) baseParams.set("vipId", vipId);
+  if (from) baseParams.set("from", from);
+  if (to) baseParams.set("to", to);
 
   let articleData: Awaited<ReturnType<typeof fetchArticles>> | null = null;
   let vipData: Awaited<ReturnType<typeof fetchVips>> | null = null;
@@ -43,7 +47,7 @@ export default async function ArticlesPage({ searchParams = {} }: { searchParams
 
   try {
     [articleData, vipData] = await Promise.all([
-      fetchArticles({ q, vipId, page }),
+      fetchArticles({ q, vipId, page, from, to }),
       fetchVips()
     ]);
   } catch (error) {
@@ -61,7 +65,7 @@ export default async function ArticlesPage({ searchParams = {} }: { searchParams
     <div className="space-y-6">
       <Filters
         vips={vipOptions}
-        initial={{ q: q ?? undefined, vipId: vipId ?? undefined }}
+        initial={{ q: q ?? undefined, vipId: vipId ?? undefined, from: from ?? undefined, to: to ?? undefined }}
       />
 
       {errorMessage ? (

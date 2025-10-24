@@ -12,6 +12,28 @@ type PersonMatch = {
   feedVipId?: string;
 };
 
+function parseDateInput(value: string | null) {
+  if (!value) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? `${trimmed}T00:00:00Z` : trimmed;
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.valueOf())) {
+    return undefined;
+  }
+  return parsed;
+}
+
+function addDays(date: Date, amount: number) {
+  const copy = new Date(date.valueOf());
+  copy.setUTCDate(copy.getUTCDate() + amount);
+  return copy;
+}
+
 function deriveDisplaySource(article: { url: string; sourceName: string | null }) {
   const trimSource = (value: string | null | undefined) => value?.trim() ?? "";
 
@@ -89,25 +111,63 @@ export async function GET(req: Request) {
 
     const vipId = searchParams.get("vipId")?.trim() || undefined;
     const query = searchParams.get("q")?.trim() || undefined;
+    const fromDate = parseDateInput(searchParams.get("from"));
+    const toDate = parseDateInput(searchParams.get("to"));
+    const toDateExclusive = toDate ? addDays(toDate, 1) : undefined;
 
     const page = parsePositiveInt(searchParams.get("page"), 1, { min: 1 });
     const limit = parsePositiveInt(searchParams.get("limit"), 20, { min: 1, max: 100 });
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ArticleWhereInput = {};
+    const andConditions: Prisma.ArticleWhereInput[] = [];
 
     if (vipId) {
-      where.personMatch = {
-        path: ["vipIds"],
-        array_contains: vipId
-      };
+      andConditions.push({
+        personMatch: {
+          path: ["vipIds"],
+          array_contains: vipId
+        }
+      });
     }
 
     if (query) {
-      where.OR = [
-        { title: { contains: query, mode: "insensitive" } },
-        { description: { contains: query, mode: "insensitive" } }
-      ];
+      andConditions.push({
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } }
+        ]
+      });
+    }
+
+    if (fromDate) {
+      andConditions.push({
+        OR: [
+          { publishedAt: { gte: fromDate } },
+          {
+            publishedAt: null,
+            fetchedAt: { gte: fromDate }
+          }
+        ]
+      });
+    }
+
+    if (toDateExclusive) {
+      andConditions.push({
+        OR: [
+          { publishedAt: { lt: toDateExclusive } },
+          {
+            publishedAt: null,
+            fetchedAt: { lt: toDateExclusive }
+          }
+        ]
+      });
+    }
+
+    let where: Prisma.ArticleWhereInput = {};
+    if (andConditions.length === 1) {
+      where = andConditions[0];
+    } else if (andConditions.length > 1) {
+      where = { AND: andConditions };
     }
 
     const [articles, total] = await prisma.$transaction([

@@ -6,6 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 type FilterValues = {
   q?: string;
   vipId?: string;
+  from?: string;
+  to?: string;
 };
 
 type VipOption = {
@@ -26,11 +28,15 @@ export default function Filters({ vips, initial }: FiltersProps) {
 
   const [keyword, setKeyword] = useState(initial.q ?? "");
   const [vipId, setVipId] = useState(initial.vipId ?? "");
+  const [from, setFrom] = useState(initial.from ?? "");
+  const [to, setTo] = useState(initial.to ?? "");
 
   useEffect(() => {
     setKeyword(initial.q ?? "");
     setVipId(initial.vipId ?? "");
-  }, [initial.q, initial.vipId]);
+    setFrom(initial.from ?? "");
+    setTo(initial.to ?? "");
+  }, [initial.q, initial.vipId, initial.from, initial.to]);
 
   const applyFilters = (next: FilterValues) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -47,6 +53,18 @@ export default function Filters({ vips, initial }: FiltersProps) {
       params.delete("vipId");
     }
 
+    if (next.from) {
+      params.set("from", next.from);
+    } else {
+      params.delete("from");
+    }
+
+    if (next.to) {
+      params.set("to", next.to);
+    } else {
+      params.delete("to");
+    }
+
     params.delete("page");
 
     const queryString = params.toString();
@@ -59,12 +77,14 @@ export default function Filters({ vips, initial }: FiltersProps) {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    applyFilters({ q: keyword, vipId });
+    applyFilters({ q: keyword, vipId, from, to });
   };
 
   const handleReset = () => {
     setKeyword("");
     setVipId("");
+    setFrom("");
+    setTo("");
     applyFilters({});
   };
 
@@ -95,6 +115,26 @@ export default function Filters({ vips, initial }: FiltersProps) {
             </option>
           ))}
         </select>
+      </div>
+      <div className="flex-1">
+        <label className="block text-xs font-semibold text-slate-600">開始日</label>
+        <input
+          type="date"
+          value={from}
+          onChange={(event) => setFrom(event.target.value)}
+          className="mt-1 w-full rounded-lg border border-slate-300 p-2 focus:border-blue-500 focus:outline-none"
+          disabled={isPending}
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-xs font-semibold text-slate-600">終了日</label>
+        <input
+          type="date"
+          value={to}
+          onChange={(event) => setTo(event.target.value)}
+          className="mt-1 w-full rounded-lg border border-slate-300 p-2 focus:border-blue-500 focus:outline-none"
+          disabled={isPending}
+        />
       </div>
       <div className="flex items-center gap-2">
         <button
