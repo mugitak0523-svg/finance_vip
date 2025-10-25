@@ -16,9 +16,12 @@ function resolveRequestUrl(input: string): string {
   const baseEnv =
     process.env.NEXT_PUBLIC_APP_URL ??
     process.env.APP_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ??
+    (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : undefined) ??
+    (process.env.RAILWAY_STATIC_URL ? `https://${process.env.RAILWAY_STATIC_URL}` : undefined);
 
-  const base = baseEnv ?? "http://localhost:3000";
+  const fallbackPort = process.env.PORT ?? "3000";
+  const base = baseEnv ?? `http://127.0.0.1:${fallbackPort}`;
 
   const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
   const normalizedInput = input.startsWith("/") ? input : `/${input}`;
