@@ -14,7 +14,9 @@ const VipList = forwardRef<VipListHandle>(function VipListComponent(_, ref) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const load = async () => {
     try {
@@ -63,6 +65,46 @@ const VipList = forwardRef<VipListHandle>(function VipListComponent(_, ref) {
     }
   };
 
+  const copyId = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopiedId(id);
+      setTimeout(() => {
+        setCopiedId((current) => (current === id ? null : current));
+      }, 2000);
+    } catch (err) {
+      console.error("[VipList] copy error", err);
+      setError("コピーに失敗しました。");
+    }
+  };
+
+  const toggleStatus = async (id: string, nextStatus: boolean) => {
+    if (statusUpdatingId) {
+      return;
+    }
+    setStatusUpdatingId(id);
+    try {
+      const res = await fetch("/api/vips", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, isActive: nextStatus })
+      });
+      if (!res.ok) {
+        throw new Error(`request_failed_${res.status}`);
+      }
+      const json = await res.json();
+      if (!json.ok) {
+        throw new Error(json.error ?? "unknown_error");
+      }
+      await load();
+    } catch (err) {
+      console.error("[VipList] status toggle error", err);
+      setError("状態の更新に失敗しました。");
+    } finally {
+      setStatusUpdatingId(null);
+    }
+  };
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-200 px-4 py-3">
@@ -77,21 +119,50 @@ const VipList = forwardRef<VipListHandle>(function VipListComponent(_, ref) {
           <div className="p-4 text-sm text-slate-500">VIPが登録されていません。</div>
         ) : (
           vips.map((vip) => (
-            <div key={vip.id} className="flex flex-col gap-2 p-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <div className="text-sm font-semibold text-slate-800">{vip.name}</div>
+            <div key={vip.id} className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="text-sm font-semibold text-slate-800">{vip.name}</div>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                      vip.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
+                    {vip.isActive ? "有効" : "無効"}
+                  </span>
+                </div>
                 {vip.aliases.length > 0 ? (
                   <div className="text-xs text-slate-500">{vip.aliases.join(", ")}</div>
                 ) : null}
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                  <span className="font-mono text-[11px] text-slate-600">{vip.id}</span>
+                  <button
+                    type="button"
+                    onClick={() => copyId(vip.id)}
+                    className="rounded border border-slate-300 px-2 py-0.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-100"
+                  >
+                    {copiedId === vip.id ? "コピー済み" : "IDコピー"}
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => remove(vip.id)}
-                disabled={pending && removingId === vip.id}
-                className="self-start rounded-lg px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 md:self-auto"
-              >
-                {pending && removingId === vip.id ? "削除中..." : "削除"}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleStatus(vip.id, !vip.isActive)}
+                  disabled={statusUpdatingId === vip.id}
+                  className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  {statusUpdatingId === vip.id ? "更新中..." : vip.isActive ? "無効化" : "再有効化"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => remove(vip.id)}
+                  disabled={pending && removingId === vip.id}
+                  className="rounded-lg px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 disabled:opacity-60"
+                >
+                  {pending && removingId === vip.id ? "削除中..." : "削除"}
+                </button>
+              </div>
             </div>
           ))
         )}

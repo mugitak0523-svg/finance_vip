@@ -1,19 +1,105 @@
-# 金融要人発言ニュース自動収集システム — Phase 1 / 2
+# Finance VIP Dashboard
 
-## Setup
-- `cp .env.example .env` で `DATABASE_URL` を設定
-- `npm install`
-- `npm run prisma:migrate:dev`
-- `npm run prisma:generate`
-- `npm run dev` → `http://localhost:3000/api/health` が 200 を返すことを確認
+## 運用に必要な情報
 
-## Phase 2 ガイド
-- `lib/url.ts` の正規化ルールが唯一の重複判定キー。Google News 由来 URL もここを経由させる。
-- `lib/matchers.ts` は `aliases[]` の運用が精度を左右する。誤検出しやすい短語はエイリアスから除外/更新する。
-- `lib/rss.ts` は GNews 非依存の共通 RSS/Atom パーサ。壊れた XML は上位へ例外を投げる。
-- `npm run test` でユニットテスト一式（URL 正規化／VIP マッチング／RSS パース）を実行。
+### 環境変数
 
-## Deploy (Railway)
-- Railway Postgres を作成し、`DATABASE_URL` を Variables に設定
-- デプロイ後 `npm run prisma:migrate:deploy`
-- `https://<your-app>.up.railway.app/api/health` が 200
+| Key | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | ✅ | PostgreSQL 接続文字列。Railway Postgres の`DATABASE_PUBLIC_URL`の値をそのまま貼る。 |
+| `API_KEY` | ✅ | `/api/jobs/ingest:run` を叩く際の管理者キー。`X-Admin-Key` ヘッダーで利用。 |
+| `NODE_ENV` | ✅ | `production`/`development`。Prisma のログレベルに影響。 |
+| `TZ` | 任意 | デフォルト `UTC`。コンテナ内のシステムタイムゾーン。 |
+
+
+## デプロイ手順（Railway）
+
+1. Railway で **Postgres** と **Web Service（GitHub 連携）** を作成し、同じプロジェクトにまとめる。
+2. Web Service の `Variables` に `.env` の値（`DATABASE_URL`, `API_KEY`, `NODE_ENV` ほか必要な設定）を登録する。
+3. リポジトリを Railway に接続してデプロイ。ビルド時には `npm install` → `npm run build` が自動実行される。
+4. 初回デプロイ後に `railway run npm run prisma:migrate:deploy` を実行して本番 DB にマイグレーションを適用し、続けて `railway run npx tsx scripts/seed-vips.ts` で初期 VIP データを投入する。
+5. `https://<app>.up.railway.app/api/health` が 200 を返せば稼働中。
+
+## Cron / ジョブ頻度
+1. 上記とは別に、新しい Web Service（例：ingest-job） を同じリポジトリから作成する。
+2. アプリのSettings > Deploy > Custom Start Commandに```npx tsx scripts/ingest-once.ts```を設定し、Cron Scheduleに任意のスケジュールを設定する。
+3. ジョブ頻度の変更はCron Scheduleを変更する。
+
+## バックアップ
+- Railway Postgres のバックアップシステムを使用する。
+
+## API Memo
+
+
+### 記事一覧 + VIP フィルタ
+
+```
+GET /api/articles?vipId=<VIP_ID>&q=<keyword>&from=2024-10-01&to=2024-10-25&page=1&limit=20
+```
+
+- `vipId`: 1 名分の VIP ID を指定すると `personMatch.vipIds` に含まれる記事だけ返す。
+- `q`: タイトル・概要の部分一致キーワード。
+- `from` / `to`: ISO 日付 (`yyyy-mm-dd`)。UTC で絞り込み（公開日時がない場合は取得日時）。
+- `page` / `limit`: ページング（デフォルト 1 / 20、`limit` は最大 100）。
+
+レスポンス例:
+```json
+{
+  "ok": true,
+  "data": {
+    "items": [
+      {
+        "id": "...",
+        "title": "...",
+        "vipMatches": [{ "id": "cmh...", "name": "Christine Lagarde", "isActive": true }],
+        "personMatch": { ... }
+      }
+    ],
+    "page": 1,
+    "pageSize": 20,
+    "total": 42,
+    "hasMore": false
+  }
+}
+```
+
+### VIP 追加
+
+```
+POST /api/vips
+Content-Type: application/json
+
+{
+  "name": "Christine Lagarde",
+  "aliases": ["Christine Lagarde", "ラガルド"],
+  "org": "ECB",
+  "title": "President"
+}
+```
+
+- `name` は必須。`aliases` は文字列配列（空可）。`org` / `title` は任意。
+- 成功すると新しい `Vip` レコードが `isActive: true` で作成される。
+
+### VIP 削除
+
+```
+DELETE /api/vips?id=<VIP_ID>
+```
+
+- `id` をクエリで渡す。存在しない ID の場合は 404 ではなく 500 (Prisma エラー) になるので注意。
+- 無効化したい場合は下記の PATCH API を利用する。
+
+### VIP 無効化 / 再有効化
+
+```
+PATCH /api/vips
+Content-Type: application/json
+
+{
+  "id": "<VIP_ID>",
+  "isActive": false
+}
+```
+
+- `id` は対象 VIP の ID。
+- `isActive` に `false` を渡すと無効化、`true` で再有効化。

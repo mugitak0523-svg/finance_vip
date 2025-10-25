@@ -85,3 +85,33 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
   }
 }
+
+type UpdateVipBody = {
+  id?: unknown;
+  isActive?: unknown;
+};
+
+export async function PATCH(req: Request) {
+  try {
+    const body = (await req.json()) as UpdateVipBody;
+    const id = typeof body.id === "string" ? body.id.trim() : "";
+    const isActive = typeof body.isActive === "boolean" ? body.isActive : null;
+
+    if (!id) {
+      return NextResponse.json({ ok: false, error: "id_required" }, { status: 400 });
+    }
+    if (isActive === null) {
+      return NextResponse.json({ ok: false, error: "is_active_required" }, { status: 400 });
+    }
+
+    const vip = await prisma.vip.update({
+      where: { id },
+      data: { isActive }
+    });
+
+    return NextResponse.json({ ok: true, data: vip });
+  } catch (error) {
+    console.error("[api/vips] patch error", error);
+    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+  }
+}

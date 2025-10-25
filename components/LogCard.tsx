@@ -16,6 +16,27 @@ function formatDate(value: string) {
   return `${formatted} JST`;
 }
 
+function formatRelative(value: string) {
+  const timestamp = new Date(value).valueOf();
+  if (Number.isNaN(timestamp)) {
+    return "";
+  }
+  const diffMs = Date.now() - timestamp;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  if (diffMinutes < 1) {
+    return "たった今";
+  }
+  if (diffMinutes < 60) {
+    return `${diffMinutes}分前`;
+  }
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) {
+    return `${diffHours}時間前`;
+  }
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}日前`;
+}
+
 function calculateDuration(startedAt: string, endedAt: string) {
   const start = new Date(startedAt).valueOf();
   const end = new Date(endedAt).valueOf();
@@ -45,6 +66,7 @@ function extractTotals(stats: Record<string, unknown>): Totals {
 
 export function LogCard({ log }: { log: IngestLogEntry }) {
   const totals = extractTotals(log.stats ?? {});
+  const relative = formatRelative(log.endedAt);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -53,6 +75,7 @@ export function LogCard({ log }: { log: IngestLogEntry }) {
           <div className="text-sm font-semibold text-slate-700">ジョブ: {log.jobId ?? "(不明)"}</div>
           <div className="text-xs text-slate-500">
             {formatDate(log.startedAt)} → {formatDate(log.endedAt)} / {calculateDuration(log.startedAt, log.endedAt)}
+            {relative ? <span className="ml-2 text-slate-400">({relative})</span> : null}
           </div>
         </div>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
