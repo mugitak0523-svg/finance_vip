@@ -6,7 +6,8 @@ function formatDate(value: string | null, fallback: string) {
   if (!date || Number.isNaN(date.valueOf())) {
     return "日時不明";
   }
-  return date.toLocaleString("ja-JP", { hour12: false });
+  const formatted = date.toLocaleString("ja-JP", { hour12: false, timeZone: "Asia/Tokyo" });
+  return `${formatted} JST`;
 }
 
 function decodeEntities(input: string) {
@@ -65,13 +66,18 @@ function cleanDescription(article: ArticleSummary) {
 export function ArticleCard({ article }: { article: ArticleSummary }) {
   const description = cleanDescription(article);
   const uniqueTerms = Array.from(new Set(article.matchTerms)).filter(Boolean);
+  const publishedLabel = formatDate(article.publishedAt, article.fetchedAt);
+  const fetchedLabel = formatDate(article.fetchedAt, article.fetchedAt);
 
   return (
     <article className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <header className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
         <div className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-slate-500 md:flex-row md:items-center md:gap-3">
           <span className="rounded bg-slate-100 px-2 py-1 text-slate-600">{article.displaySource}</span>
-          <span className="text-slate-400 normal-case">{formatDate(article.publishedAt, article.fetchedAt)}</span>
+          <div className="flex flex-col gap-0.5 text-[11px] font-normal uppercase tracking-normal text-slate-500 md:flex-row md:items-center md:gap-3">
+            <span className="normal-case text-slate-500">公開: {publishedLabel}</span>
+            <span className="normal-case text-slate-500">収集: {fetchedLabel}</span>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           {article.vipMatches.map((vip) => (
