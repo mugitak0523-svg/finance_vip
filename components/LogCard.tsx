@@ -12,7 +12,8 @@ function formatDate(value: string) {
   if (Number.isNaN(date.valueOf())) {
     return "不明";
   }
-  return date.toLocaleString("ja-JP", { hour12: false });
+  const formatted = date.toLocaleString("ja-JP", { hour12: false, timeZone: "Asia/Tokyo" });
+  return `${formatted} JST`;
 }
 
 function calculateDuration(startedAt: string, endedAt: string) {

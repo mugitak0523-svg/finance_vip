@@ -1,5 +1,6 @@
 import ArticleCard from "@/components/ArticleCard";
 import Filters from "@/components/Filters";
+import IngestButton from "@/components/IngestButton";
 import { fetchArticles, fetchVips } from "@/lib/fetchers";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +64,11 @@ export default async function ArticlesPage({ searchParams = {} }: { searchParams
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-lg font-semibold text-slate-900">記事一覧</h1>
+        <IngestButton />
+      </div>
+
       <Filters
         vips={vipOptions}
         initial={{ q: q ?? undefined, vipId: vipId ?? undefined, from: from ?? undefined, to: to ?? undefined }}
