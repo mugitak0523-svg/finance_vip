@@ -68,6 +68,7 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
   const uniqueTerms = Array.from(new Set(article.matchTerms)).filter(Boolean);
   const publishedLabel = formatDate(article.publishedAt, article.fetchedAt);
   const fetchedLabel = formatDate(article.fetchedAt, article.fetchedAt);
+  const fetchedRelative = formatRelative(article.fetchedAt);
 
   return (
     <article className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -76,7 +77,10 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
           <span className="rounded bg-slate-100 px-2 py-1 text-slate-600">{article.displaySource}</span>
           <div className="flex flex-col gap-0.5 text-[11px] font-normal uppercase tracking-normal text-slate-500 md:flex-row md:items-center md:gap-3">
             <span className="normal-case text-slate-500">公開: {publishedLabel}</span>
-            <span className="normal-case text-slate-500">収集: {fetchedLabel}</span>
+            <span className="normal-case text-slate-500">
+              収集: {fetchedLabel}
+              {fetchedRelative ? <span className="ml-2 text-slate-400">({fetchedRelative})</span> : null}
+            </span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -117,3 +121,26 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
 }
 
 export default ArticleCard;
+function formatRelative(value: string | null) {
+  if (!value) {
+    return "";
+  }
+  const timestamp = new Date(value).valueOf();
+  if (Number.isNaN(timestamp)) {
+    return "";
+  }
+  const diffMs = Date.now() - timestamp;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  if (diffMinutes < 1) {
+    return "たった今";
+  }
+  if (diffMinutes < 60) {
+    return `${diffMinutes}分前`;
+  }
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) {
+    return `${diffHours}時間前`;
+  }
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}日前`;
+}

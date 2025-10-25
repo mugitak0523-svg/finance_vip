@@ -32,6 +32,55 @@ const VIPS: SeedVip[] = [
     title: 'Governor',
     org: '日本銀行',
     gnewsQueryExtra: '日銀 OR BOJ'
+  },
+  {
+    name: 'Janet Yellen',
+    aliases: ['Janet Yellen', 'ジャネット・イエレン', 'イエレン長官'],
+    title: 'Secretary',
+    org: 'U.S. Treasury',
+    gnewsQueryExtra: 'Treasury Secretary'
+  },
+  {
+    name: 'Andrew Bailey',
+    aliases: ['Andrew Bailey', 'アンドリュー・ベイリー', 'ベイリー総裁'],
+    title: 'Governor',
+    org: 'Bank of England',
+    gnewsQueryExtra: 'Bank of England OR BOE'
+  },
+  {
+    name: 'Kristalina Georgieva',
+    aliases: ['Kristalina Georgieva', 'クリスタリナ・ゲオルギエヴァ', 'ゲオルギエバ'],
+    title: 'Managing Director',
+    org: 'International Monetary Fund',
+    gnewsQueryExtra: 'IMF'
+  },
+  {
+    name: 'Philippe Hildebrand',
+    aliases: ['Philippe Hildebrand', 'フィリップ・ヒルデブランド'],
+    title: 'Vice Chairman',
+    org: 'BlackRock',
+    gnewsQueryExtra: 'BlackRock vice chairman'
+  },
+  {
+    name: 'Mario Draghi',
+    aliases: ['Mario Draghi', 'マリオ・ドラギ', 'ドラギ前総裁'],
+    title: 'Former President',
+    org: 'European Central Bank',
+    gnewsQueryExtra: 'Mario Draghi'
+  },
+  {
+    name: 'Lael Brainard',
+    aliases: ['Lael Brainard', 'レール・ブレイナード', 'ブレイナード'],
+    title: 'Director',
+    org: 'National Economic Council',
+    gnewsQueryExtra: 'Lael Brainard'
+  },
+  {
+    name: 'Pierre-Olivier Gourinchas',
+    aliases: ['Pierre-Olivier Gourinchas', 'ピエール・オリヴィエ・グランシャ'],
+    title: 'Chief Economist',
+    org: 'International Monetary Fund',
+    gnewsQueryExtra: 'IMF chief economist'
   }
 ];
 
