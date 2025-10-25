@@ -12,7 +12,7 @@ async function main() {
 
   const result = await runIngest({
     vipIds: activeVips.map((vip) => vip.id),
-    recentHours: 24,
+    recentHours: 120,
     followHtmlCanonical: true
   });
 
