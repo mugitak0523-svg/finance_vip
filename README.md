@@ -22,7 +22,7 @@
 
 ## Cron / ジョブ頻度
 1. 上記とは別に、新しい Web Service（例：ingest-job） を同じリポジトリから作成する。
-2. アプリのSettings > Deploy > Custom Start Commandに```npx tsx scripts/ingest-once.ts```を設定し、Cron Scheduleに任意のスケジュールを設定する。
+2. アプリのSettings > Deploy > Custom Start Commandに```npx tsx scripts/ingest-once.ts```を設定し、Cron Scheduleに任意のスケジュールを設定する(例：*/5 * * * *)。
 3. ジョブ頻度の変更はCron Scheduleを変更する。
 
 ## バックアップ
@@ -103,3 +103,29 @@ Content-Type: application/json
 
 - `id` は対象 VIP の ID。
 - `isActive` に `false` を渡すと無効化、`true` で再有効化。
+
+### 収集ログ一覧
+
+```
+GET /api/logs?limit=20
+```
+
+- `limit` で最新から取得する件数を指定（1〜100）。省略時は 20。
+- レスポンス例:
+```json
+[
+  {
+    "id": "cmh5rrv590000qlssvdbhdfik",
+    "jobId": "ingest-1761365885947",
+    "startedAt": "2024-10-25T04:18:05.947Z",
+    "endedAt": "2024-10-25T04:18:10.412Z",
+    "stats": {
+      "perVip": { "...": { "new": 0, "skip": 0, "error": 0, "items": 100, "queries": 2 } },
+      "totals": { "new": 0, "seen": 388, "skip": 0, "error": 0 }
+    },
+    "level": "INFO",
+    "message": null,
+    "createdAt": "2024-10-25T04:18:10.414Z"
+  }
+]
+```
