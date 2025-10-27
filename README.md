@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | `DATABASE_URL` | ✅ | PostgreSQL 接続文字列。Railway Postgres の`DATABASE_PUBLIC_URL`の値をそのまま貼る。 |
 | `API_KEY` | ✅ | `/api/jobs/ingest:run` を叩く際の管理者キー。`X-Admin-Key` ヘッダーで利用。 |
-| `NODE_ENV` | ✅ | `production`/`development`。Prisma のログレベルに影響。 |
+| `NODE_ENV` | ✅ | `production`。Prisma のログレベルに影響。 |
 | `TZ` | 任意 | デフォルト `UTC`。コンテナ内のシステムタイムゾーン。 |
 
 
@@ -17,7 +17,7 @@
 1. Railway で **Postgres** と **Web Service（GitHub 連携）** を作成し、同じプロジェクトにまとめる。
 2. Web Service の `Variables` に `.env` の値（`DATABASE_URL`, `API_KEY`, `NODE_ENV` ほか必要な設定）を登録する。
 3. リポジトリを Railway に接続してデプロイ。ビルド時には `npm install` → `npm run build` が自動実行される。
-4. 初回デプロイ後に `railway run npm run prisma:migrate:deploy` を実行して本番 DB にマイグレーションを適用し、続けて `railway run npx tsx scripts/seed-vips.ts` で初期 VIP データを投入する。
+4. 初回デプロイ後にRailwayのShellで `railway run npm run prisma:migrate:deploy` を実行して本番 DB にマイグレーションを適用し、続けて `railway run npx tsx scripts/seed-vips.ts` で初期 VIP データを投入する。
 5. `https://<app>.up.railway.app/api/health` が 200 を返せば稼働中。
 
 ## Cron / ジョブ頻度

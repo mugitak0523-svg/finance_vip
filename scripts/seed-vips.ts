@@ -55,6 +55,13 @@ const VIPS: SeedVip[] = [
     gnewsQueryExtra: 'IMF'
   },
   {
+    name: 'Donald Trump',
+    aliases: ['Donald Trump', 'ドナルド・トランプ', 'トランプ大統領'],
+    title: 'Former President',
+    org: 'United States',
+    gnewsQueryExtra: 'US President'
+  },
+  {
     name: 'Philippe Hildebrand',
     aliases: ['Philippe Hildebrand', 'フィリップ・ヒルデブランド'],
     title: 'Vice Chairman',
@@ -81,6 +88,13 @@ const VIPS: SeedVip[] = [
     title: 'Chief Economist',
     org: 'International Monetary Fund',
     gnewsQueryExtra: 'IMF chief economist'
+  },
+  {
+    name: '片山さつき',
+    aliases: ['片山さつき', 'Satsuki Katayama', '片山財務大臣'],
+    title: 'Minister',
+    org: '日本財務省',
+    gnewsQueryExtra: '財務省'
   }
 ];
 
